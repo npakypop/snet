@@ -1,5 +1,7 @@
 "use client";
 
+import * as z from "zod";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,13 +15,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { userValidation } from "@/lib/validations/user";
-import * as z from "zod";
-import Image from "next/image";
+import { UserValidation } from "@/lib/validations/user";
 import { ChangeEvent, useState } from "react";
 import { Textarea } from "../ui/textarea";
 import { isBase64Image } from "@/lib/utils";
 import { useUploadThing } from "@/lib/uploadthing";
+import { updateUser } from "@/lib/actions/user.actions";
+import { usePathname, useRouter } from "next/navigation";
 
 interface Props {
   user: {
@@ -34,10 +36,14 @@ interface Props {
 }
 
 const AccountProfile = ({ user, btnTitle }: Props) => {
+  const router = useRouter(); //!позволяет программно изменять маршруты внутри клиентских компонентов.
+  const pathname = usePathname(); //! позволяет вам читать текущий путь URL
+  console.log(pathname);
+  const { startUpload } = useUploadThing("media"); //!Этот хук предоставляет функцию для начала загрузки, состояние isUploading, и информацию о допустимых файлах (permittedFileInfo), которая дает информацию о том, какие типы файлов, размеры и количество разрешены на ендпоинте.
   const [files, setFiles] = useState<File[]>([]);
-  const { startUpload } = useUploadThing("media");
+
   const form = useForm({
-    resolver: zodResolver(userValidation),
+    resolver: zodResolver(UserValidation),
     defaultValues: {
       profile_photo: user?.image || "",
       name: user?.name || "",
@@ -45,6 +51,47 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
       bio: user?.bio || "",
     },
   });
+
+  const onSubmit = async (values: z.infer<typeof UserValidation>) => {
+    // console.log("submit");
+    // console.log(values);
+    console.log("1", process.env.NEXT_PUBLIC_MONGODB_URL);
+    console.log("2", process.env.NEXT_PUBLIC_UPLOADTHING_SECRET);
+    console.log("3", process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+    console.log("4", process.env.CLERK_SECRET_KEY);
+    console.log("5", process.env.NEXT_PUBLIC_UPLOADTHING_APP_ID);
+    console.log("6", process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL);
+    console.log("7", process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL);
+    console.log("8", process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL);
+    console.log("9", process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL);
+
+    // const blob = values.profile_photo;
+    // console.log("blob:", blob);
+    // const hasImageChanged = isBase64Image(blob); //! эта функция вернет тру если фото было изменено или фолс если нет
+    // console.log("hasImageChanged:", hasImageChanged);
+    // if (hasImageChanged) {
+    //   const imgRes = await startUpload(files); //! загружаю файл и затем проверяю если пришел ответ и адрес файла
+    //   if (imgRes && imgRes[0].url) {
+    //     //! fileUrl deprecated вместо него ВСКод предлагает метод url
+    //     values.profile_photo = imgRes[0].url;
+    //   }
+    // }
+
+    await updateUser({
+      username: values.username,
+      name: values.name,
+      bio: values.bio,
+      image: values.profile_photo,
+      userId: user.id,
+      path: pathname,
+    }); //! *функция с бекенда которая обновит профиль пользователя
+
+    // if (pathname === "/profile/edit") {
+    //   router.back(); //! вернуться на предыдущую страницу после обновления данных
+    // } else {
+    //   router.push("/");
+    // }
+  }; //! Функция будет загружать новое изображение и обновлять информацию о пользователе в нашей базе данных.
 
   const handleImage = (
     e: ChangeEvent<HTMLInputElement>,
@@ -55,7 +102,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
 
     const fileReader = new FileReader();
     if (e.target.files && e.target.files.length > 0) {
-      //! так как файлов может не быть и значение будет НАЛ и метод не ленгз не вызовется на НАЛ, то надло сначала сделать проверку существуют ли вообще файлы. Если да то тогда смотрим длинну и проверяем что бы была больше 1
+      //! так как файлов может не быть и значение будет НАЛ и метод ленгз не вызовется на НАЛ, то надо сначала сделать проверку существуют ли вообще файлы. Если да то тогда смотрим длинну и проверяем что бы была больше 0
       const file = e.target.files[0];
       setFiles(Array.from(e.target.files));
       if (!file.type.includes("image")) return;
@@ -66,20 +113,6 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
       fileReader.readAsDataURL(file);
     }
   };
-
-  const onSubmit = async (values: z.infer<typeof userValidation>) => {
-    const blob = values.profile_photo;
-    const isImageChanged = isBase64Image(blob); //! эта функция вернет тру если фото было изменено или фолс если нет
-    if (isImageChanged) {
-      const imgRes = await startUpload(files); //! загружаю файл и затем проверяю если пришел ответ и адрес файла
-      if (imgRes && imgRes[0].url) {
-        //! fileUrl deprecated вместо него ВСКод предлагает метод url
-        values.profile_photo = imgRes[0].url;
-      }
-    }
-    //*надо вызвать функцию с бекенда которая обновит профиль пользователя
-  }; //! Функция будет загружать новое изображение и обновлять информацию о пользователе в нашей базе данных.
-
   return (
     <Form {...form}>
       <form
