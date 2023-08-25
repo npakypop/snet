@@ -4,7 +4,12 @@ import { createUploadthing, type FileRouter } from "uploadthing/next";
 const f = createUploadthing();
 
 const getUser = async () => await currentUser();
-console.log("getUser:", getUser)
+
+// const curU = async () => {
+//   const user1 = await currentUser();
+//   return user1;
+// };
+// console.log("user1:", curU());
 
 export const ourFileRouter = {
   // Define as many FileRoutes as you like, each with a unique routeSlug
@@ -13,7 +18,7 @@ export const ourFileRouter = {
     .middleware(async (req) => {
       // This code runs on your server before upload
       const user = await getUser();
-      console.log(".middleware ~ user:", user)
+      console.log(".middleware ~ user:", user);
 
       // If you throw, the user will not be able to upload
       if (!user) throw new Error("Unauthorized");

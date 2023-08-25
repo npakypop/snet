@@ -65,17 +65,16 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
     console.log("8", process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL);
     console.log("9", process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL);
 
-    // const blob = values.profile_photo;
-    // console.log("blob:", blob);
-    // const hasImageChanged = isBase64Image(blob); //! эта функция вернет тру если фото было изменено или фолс если нет
-    // console.log("hasImageChanged:", hasImageChanged);
-    // if (hasImageChanged) {
-    //   const imgRes = await startUpload(files); //! загружаю файл и затем проверяю если пришел ответ и адрес файла
-    //   if (imgRes && imgRes[0].url) {
-    //     //! fileUrl deprecated вместо него ВСКод предлагает метод url
-    //     values.profile_photo = imgRes[0].url;
-    //   }
-    // }
+    const blob = values.profile_photo;
+    const hasImageChanged = isBase64Image(blob); //! эта функция вернет тру если фото было изменено или фолс если нет
+    console.log("hasImageChanged:", hasImageChanged);
+    if (hasImageChanged) {
+      const imgRes = await startUpload(files); //! загружаю файл и затем проверяю если пришел ответ и адрес файла
+      if (imgRes && imgRes[0].url) {
+        //! fileUrl deprecated вместо него ВСКод предлагает метод url
+        values.profile_photo = imgRes[0].url;
+      }
+    }
 
     await updateUser({
       username: values.username,
@@ -86,11 +85,11 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
       path: pathname,
     }); //! *функция с бекенда которая обновит профиль пользователя
 
-    // if (pathname === "/profile/edit") {
-    //   router.back(); //! вернуться на предыдущую страницу после обновления данных
-    // } else {
-    //   router.push("/");
-    // }
+    if (pathname === "/profile/edit") {
+      router.back(); //! вернуться на предыдущую страницу после обновления данных
+    } else {
+      router.push("/");
+    }
   }; //! Функция будет загружать новое изображение и обновлять информацию о пользователе в нашей базе данных.
 
   const handleImage = (
@@ -153,6 +152,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                   onChange={(e) => handleImage(e, field.onChange)}
                 />
               </FormControl>
+              <FormMessage/>
             </FormItem>
           )}
         />
@@ -171,6 +171,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                   {...field}
                 />
               </FormControl>
+              <FormMessage/>
             </FormItem>
           )}
         />
@@ -189,6 +190,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                   {...field}
                 />
               </FormControl>
+              <FormMessage/>
             </FormItem>
           )}
         />
@@ -207,6 +209,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                   {...field}
                 />
               </FormControl>
+              <FormMessage/>
             </FormItem>
           )}
         />
