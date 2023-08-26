@@ -2,6 +2,8 @@
 import { revalidatePath } from "next/cache";
 import User from "../models/user.model";
 import { connectToDB } from "../mongoose";
+import Thread from "../models/thread.model";
+import { SortOrder } from "mongoose";
 interface IUserParams {
   userId: string;
   username: string;
@@ -49,4 +51,50 @@ export async function fetchUser(userId: string) {
   } catch (error: any) {
     throw new Error(`Faild to fetch user: ${error.message}`);
   }
+}
+
+export async function fetchUserPosts(userId: string) {
+  try {
+    connectToDB();
+    //! почссле того как подлючились к БД надо найти все посты автором которых является пользователь с данным userId
+    //*TODO populate community
+    const threads = await User.findOne({ id: userId }).populate({
+      path: "threads",
+      model: Thread,
+      populate: {
+        path: "children",
+        model: Thread,
+        populate: {
+          path: "author",
+          model: User,
+          select: "name image id",
+        },
+      },
+    });
+    return threads;
+  } catch (error: any) {
+    throw new Error(`Error fetching posts: ${error.message}`);
+  }
+}
+
+export async function fetchUsers({
+  userId,
+  searchString = "",
+  pageNumber = 1,
+  pageSize = 20,
+  sortBy = "desc",
+}: {
+  userId: string;
+  searchString?: string;
+  pageNumber?: number;
+  pageSize?: number;
+  sortBy?: SortOrder; //! тип из mongoose который отвечает за сортровку
+}) {
+  try {
+    connectToDB();
+
+    //*пагинация
+    const skipAmount = (pageNumber - 1) * pageSize; //! эти значения приходят из params
+    const regex = new RegExp(searchString, "i"); //! использование регулярного выражения без учета регистра для поиска пользователя. поиск будет регистронезависимым и найдет пользователей независимо от того, какой регистр используется в запросе.  Ключ "i" означает регистронезависимый поиск.
+  } catch (error) {}
 }
