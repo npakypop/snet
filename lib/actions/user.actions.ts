@@ -3,7 +3,8 @@ import { revalidatePath } from "next/cache";
 import User from "../models/user.model";
 import { connectToDB } from "../mongoose";
 import Thread from "../models/thread.model";
-import { SortOrder } from "mongoose";
+import { FilterQuery, SortOrder } from "mongoose";
+import { AnyCnameRecord } from "dns";
 interface IUserParams {
   userId: string;
   username: string;
@@ -95,6 +96,37 @@ export async function fetchUsers({
 
     //*пагинация
     const skipAmount = (pageNumber - 1) * pageSize; //! эти значения приходят из params
-    const regex = new RegExp(searchString, "i"); //! использование регулярного выражения без учета регистра для поиска пользователя. поиск будет регистронезависимым и найдет пользователей независимо от того, какой регистр используется в запросе.  Ключ "i" означает регистронезависимый поиск.
-  } catch (error) {}
+    const regex = new RegExp(searchString, "i"); //! Создание регулярного выражения для поиска с игнорированием регистра. Поиск будет осуществляться без учета регистра.  Ключ "i" означает регистронезависимый поиск.
+
+    //* запрос
+    const query: FilterQuery<typeof User> = {
+      id: { $ne: userId }, //! ($ne:userId => not equel to userId) отфильтрует айди текущего пользователя
+    };
+
+    if (searchString.trim() !== "") {
+      //! проверяю сущществует ли вообще что-то в строке поиска
+      query.$or = [
+        //! Используется оператор $or для выполнения поиска по двум полям. Для того что быиспользовать $or, надо было указать тип для query выше
+        { username: { $regex: regex } },
+        { name: { $regex: regex } },
+      ]; //! поиск стразу  по username и name
+    }
+
+    const sortOptions = { createdAt: sortBy }; //! параметры сортировки
+
+    const usersQuery = User.find(query)
+      .sort(sortOptions)
+      .skip(skipAmount)
+      .limit(pageSize); //! Делаем поиск, затем результат поиска сортеруем по указаным параметрам сортировки, пропускаем результаты поиска что перейти на указаную страницу и выводим только указаное колличество результатов
+
+    const totalUsersCount = await User.countDocuments(query); //! считаем общее колличество найденых результатов
+
+    const users = await usersQuery.exec(); //! запускаем запрос на поиск и сортировку
+
+    const isNext = totalUsersCount > skipAmount + users.length; //! проверяем есть ли еще страницы после этой
+
+    return { users, isNext };
+  } catch (error: any) {
+    throw new Error(`Error fetching users: ${error.message}`);
+  }
 }
