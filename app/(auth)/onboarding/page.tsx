@@ -5,14 +5,13 @@ import { redirect } from "next/navigation";
 async function Page() {
   const user = await currentUser(); //! информация о пользователе приходит из клерка после регистрации
 
-  // if (!user) return null; //! to avoid typescript warnings
+  if (!user) return null; //! to avoid typescript warnings
 
-  // const userInfo = await fetchUser(user.id);
-  // if (userInfo?.onboarded) redirect("/");
-  const userInfo = {};
+  const userInfo = await fetchUser(user.id);
+  if (userInfo?.onboarded) redirect("/");
 
   const userData = {
-    id: user?.id, //! айди полдключившегося пользователя
+    id: user.id, //! айди полдключившегося пользователя
     objectId: userInfo?._id, //! тоже должен приходить из БД, и для єтого віше создан еще один обїект с информацией которую будемт запрашивать из БД
     username: userInfo?.username || user?.username,
     name: userInfo?.name || user?.firstName || "", //! имя будет приходить или из базі данніх или из КЛерка если пользователь там указал свое имя или же постая строка еслм не указал ничего

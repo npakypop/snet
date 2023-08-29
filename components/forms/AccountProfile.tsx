@@ -53,18 +53,6 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
   });
 
   const onSubmit = async (values: z.infer<typeof UserValidation>) => {
-    // console.log("submit");
-    // console.log(values);
-    console.log("1", process.env.NEXT_PUBLIC_MONGODB_URL);
-    console.log("2", process.env.NEXT_PUBLIC_UPLOADTHING_SECRET);
-    console.log("3", process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
-    console.log("4", process.env.CLERK_SECRET_KEY);
-    console.log("5", process.env.NEXT_PUBLIC_UPLOADTHING_APP_ID);
-    console.log("6", process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL);
-    console.log("7", process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL);
-    console.log("8", process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL);
-    console.log("9", process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL);
-
     const blob = values.profile_photo;
     const hasImageChanged = isBase64Image(blob); //! эта функция вернет тру если фото было изменено или фолс если нет
     console.log("hasImageChanged:", hasImageChanged);
@@ -152,7 +140,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                   onChange={(e) => handleImage(e, field.onChange)}
                 />
               </FormControl>
-              <FormMessage/>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -171,7 +159,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                   {...field}
                 />
               </FormControl>
-              <FormMessage/>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -190,7 +178,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                   {...field}
                 />
               </FormControl>
-              <FormMessage/>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -209,7 +197,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                   {...field}
                 />
               </FormControl>
-              <FormMessage/>
+              <FormMessage />
             </FormItem>
           )}
         />

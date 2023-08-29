@@ -130,3 +130,32 @@ export async function fetchUsers({
     throw new Error(`Error fetching users: ${error.message}`);
   }
 }
+
+export async function getActivity(userId: string) {
+  try {
+    connectToDB();
+
+    const userThreads = await Thread.find({ author: userId }); //! поиск всех постов которые создал пользователь
+
+    const childThreadIds = userThreads.reduce((acc, userThread) => {
+      console.log("acc", acc);
+      return acc.concat(userThread.children);
+    }, []); //! сбор всех айдишников комментариев к постам, т.е. элементы массива children у каждого из постов
+
+    //! получение доступа ко всем комментариям кроме тех которые оставил сам пользователь
+
+    const replies = Thread.find({
+      _id: { $in: childThreadIds }, //! поиск документов, у которых _id соответствуют значениям из массива childThreadIds.
+      author: { $ne: userId },
+    }).populate({
+      path: "author",
+      model: User,
+      select: "name image _id",
+    });
+    console.log("getActivity ~ replies:", replies);
+
+    return replies;
+  } catch (error: any) {
+    throw new Error(`Failed fetch activity: ${error.message}`);
+  }
+}
