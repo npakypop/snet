@@ -13,10 +13,10 @@ async function Page() {
   const userData = {
     id: user.id, //! айди полдключившегося пользователя
     objectId: userInfo?._id, //! тоже должен приходить из БД, и для єтого віше создан еще один обїект с информацией которую будемт запрашивать из БД
-    username: userInfo?.username || user?.username,
-    name: userInfo?.name || user?.firstName || "", //! имя будет приходить или из базі данніх или из КЛерка если пользователь там указал свое имя или же постая строка еслм не указал ничего
-    bio: userInfo?.bio || "",
-    image: userInfo?.image || user?.imageUrl,
+    username: userInfo ? userInfo?.username : user?.username,
+    name: userInfo ? userInfo?.name : user?.firstName || "", //! имя будет приходить или из базі данніх или из КЛерка если пользователь там указал свое имя или же постая строка еслм не указал ничего
+    bio: userInfo ? userInfo?.bio : "",
+    image: userInfo ? userInfo?.image : user?.imageUrl,
   }; //!перед тем как передать информацию в компонент AccountProfile надо создать обїект с информацией о пользователе
 
   return (

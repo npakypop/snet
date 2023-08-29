@@ -1,21 +1,23 @@
 import Image from "next/image";
 import React from "react";
 interface Props {
-  accounId: string;
+  accountId: string;
   authUserId: string;
   name: string;
   username: string;
   imgUrl: string;
   bio: string;
+  type?: "User" | "Community";
 }
 
 const ProfileHeader = ({
-  accounId,
+  accountId,
   authUserId,
   name,
   username,
   imgUrl,
   bio,
+  type,
 }: Props) => {
   return (
     <div className="flex w-full flex-col justify-start">

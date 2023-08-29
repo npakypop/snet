@@ -4,7 +4,8 @@ import User from "../models/user.model";
 import { connectToDB } from "../mongoose";
 import Thread from "../models/thread.model";
 import { FilterQuery, SortOrder } from "mongoose";
-import { AnyCnameRecord } from "dns";
+import Community from "../models/community.model";
+
 interface IUserParams {
   userId: string;
   username: string;
@@ -19,8 +20,9 @@ export async function updateUser(
   { userId, username, name, bio, image, path }: IUserParams //! так как передаваемых параметров в функцию много, то могут возникнуть проблемы из-зы не правильной очередности передачи значений при вызове этой функции. Для того что бы это избежать проще поместить все значения в объект, тогда не будет разницы каким по очереди указано значение, для этого сделал интерфейс с типами и аннотировал объект параметров в функции. Соответственно при вызове функции надо будет передавать в качестве аргумента объект с такими же полями как в аннотации и укзазывать значения. Эта функция вызывается в компоненте AccountProfile для обновления данных пользователя
 ): Promise<void> {
   //! calls to DB
-  connectToDB();
   try {
+    connectToDB();
+
     await User.findOneAndUpdate(
       { id: userId },
       {
@@ -44,11 +46,10 @@ export async function updateUser(
 export async function fetchUser(userId: string) {
   try {
     connectToDB();
-    return await User.findOne({ id: userId });
-    // .populate({
-    // path: 'communities',
-    // model: Community
-    // })
+    return await User.findOne({ id: userId }).populate({
+      path: "communities",
+      model: Community,
+    });
   } catch (error: any) {
     throw new Error(`Faild to fetch user: ${error.message}`);
   }
@@ -62,15 +63,22 @@ export async function fetchUserPosts(userId: string) {
     const threads = await User.findOne({ id: userId }).populate({
       path: "threads",
       model: Thread,
-      populate: {
-        path: "children",
-        model: Thread,
-        populate: {
-          path: "author",
-          model: User,
-          select: "name image id",
+      populate: [
+        {
+          path: "community",
+          model: Community,
+          select: "name id image _id", // Select the "name" and "_id" fields from the "Community" model
         },
-      },
+        {
+          path: "children",
+          model: Thread,
+          populate: {
+            path: "author",
+            model: User,
+            select: "name image id", // Select the "name" and "_id" fields from the "User" model
+          },
+        },
+      ],
     });
     return threads;
   } catch (error: any) {
