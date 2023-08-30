@@ -20,7 +20,7 @@ async function Page({ params }: { params: { id: string } }) {
   return (
     <section>
       <ProfileHeader
-        accounId={userInfo.id} //! айди юзера на профайл которого смотрим
+        accountId={userInfo.id} //! айди юзера на профайл которого смотрим
         authUserId={user.id} //! это позволит нам понять что текущий зарегестрированый пользоватьель смотрит на свой собственный профиль или на чейто другой
         name={userInfo.name}
         username={userInfo.username}

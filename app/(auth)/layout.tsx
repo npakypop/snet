@@ -4,6 +4,7 @@ import { dark } from "@clerk/themes";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 import type { Metadata } from "next";
+import "@uploadthing/react/styles.css";
 
 import "../globals.css";
 //! для лучшей оптимизации (СЕО) надо делать следующее:
