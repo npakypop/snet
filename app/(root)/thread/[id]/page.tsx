@@ -30,6 +30,7 @@ const Page = async ({ params }: { params: { id: string } }) => {
           community={thread.community}
           createdAt={thread.createdAt}
           comments={thread.children}
+          liked={userInfo.liked.includes(thread.id)}
         />
       </div>
       <div className="mt-7">
