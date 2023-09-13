@@ -1,6 +1,9 @@
 import { formatDateString } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import { Button } from "../ui/button";
+import LikeButton from "../LikeButton";
+import React from "react";
 
 interface Props {
   id: string;
@@ -24,9 +27,9 @@ interface Props {
     };
   }[];
   isComment?: boolean;
+  liked: boolean;
 }
-
-const ThreadCard = ({
+const ThreadCard: React.FC<Props> = ({
   id,
   currentUserId,
   parentId,
@@ -36,6 +39,7 @@ const ThreadCard = ({
   createdAt,
   comments,
   isComment,
+  liked,
 }: Props) => {
   return (
     <article
@@ -66,12 +70,11 @@ const ThreadCard = ({
 
             <div className={`${isComment && "mb-10"} mt-5 flex flex-col gap-3`}>
               <div className="flex gap-3.5">
-                <Image
-                  src="/assets/heart-gray.svg"
-                  alt="heart"
-                  width={24}
-                  height={24}
-                  className="cursor-pointer object-contain"
+                <LikeButton
+                  liked={liked}
+                  name={author.name}
+                  id={id}
+                  currentUserId={currentUserId}
                 />
                 <Link href={`/thread/${id}`}>
                   <Image

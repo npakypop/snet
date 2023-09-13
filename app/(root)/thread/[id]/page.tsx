@@ -12,7 +12,7 @@ const Page = async ({ params }: { params: { id: string } }) => {
   if (!user) return null;
 
   const userInfo = await fetchUser(user.id);
-  console.log("userinfo", userInfo);
+  // console.log("userinfo", userInfo);
   if (!userInfo?.onboarded) redirect("/onboarding");
 
   const thread = await fetchThreadById(params.id);
