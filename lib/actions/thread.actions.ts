@@ -127,6 +127,38 @@ export async function fetchThreadById(threadId: string) {
   }
 }
 
+export async function addToLiked(threadId: string, currentUserId: string) {
+  console.log(currentUserId);
+  try {
+    connectToDB();
+
+    const actualUser = await User.findOne({ id: currentUserId }); //! поиск таким методом так как currentUserId приходит из клерка и это значение в БД указано как поле id, если же пользоваться методом findById то тогда метод будет обращаться к полю _id, которое создает сама БД. По сути findById это тоже самое что findOne({ _id: сurrentUserId }), за исключением обработки undefined. Подробнее в документации к  методу findById.
+    actualUser.liked.push(threadId);
+    await actualUser.save();
+    console.log("addToFav ~ actualUser:", actualUser);
+  } catch (error) {
+    throw new Error(`thread not found`);
+  }
+}
+
+export async function removeFromLiked(threadId: string, currentUserId: string) {
+  try {
+    connectToDB();
+
+    const actualUser = await User.findOne({ id: currentUserId });
+
+    const index = actualUser.liked.indexOf(threadId);
+
+    if (index !== -1) {
+      actualUser.liked.splice(index, 1);
+    }
+    await actualUser.save();
+    console.log("actualUser:", actualUser);
+  } catch (error) {
+    throw new Error(`thread not found`);
+  }
+}
+
 export async function addCommentToThread(
   threadId: string,
   commenmtText: string,

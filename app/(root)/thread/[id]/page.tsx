@@ -12,7 +12,7 @@ const Page = async ({ params }: { params: { id: string } }) => {
   if (!user) return null;
 
   const userInfo = await fetchUser(user.id);
-  console.log("userinfo", userInfo);
+  // console.log("userinfo", userInfo);
   if (!userInfo?.onboarded) redirect("/onboarding");
 
   const thread = await fetchThreadById(params.id);
@@ -30,6 +30,7 @@ const Page = async ({ params }: { params: { id: string } }) => {
           community={thread.community}
           createdAt={thread.createdAt}
           comments={thread.children}
+          liked={userInfo.liked.includes(thread.id)}
         />
       </div>
       <div className="mt-7">
@@ -52,6 +53,7 @@ const Page = async ({ params }: { params: { id: string } }) => {
             createdAt={childrenItem.createdAt}
             comments={childrenItem.children}
             isComment
+            liked={userInfo.liked.includes(childrenItem.id)}
           />
         ))}
       </div>
