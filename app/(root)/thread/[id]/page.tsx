@@ -53,6 +53,7 @@ const Page = async ({ params }: { params: { id: string } }) => {
             createdAt={childrenItem.createdAt}
             comments={childrenItem.children}
             isComment
+            liked={userInfo.liked.includes(childrenItem.id)}
           />
         ))}
       </div>
