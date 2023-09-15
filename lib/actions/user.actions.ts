@@ -146,7 +146,7 @@ export async function getActivity(userId: string) {
     const userThreads = await Thread.find({ author: userId }); //! поиск всех постов которые создал пользователь
 
     const childThreadIds = userThreads.reduce((acc, userThread) => {
-      console.log("acc", acc);
+      // console.log("acc", acc);
       return acc.concat(userThread.children);
     }, []); //! сбор всех айдишников комментариев к постам, т.е. элементы массива children у каждого из постов
 
@@ -160,7 +160,7 @@ export async function getActivity(userId: string) {
       model: User,
       select: "name image _id",
     });
-    console.log("getActivity ~ replies:", replies);
+    // console.log("getActivity ~ replies:", replies);
 
     return replies;
   } catch (error: any) {

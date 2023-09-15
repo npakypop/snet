@@ -38,7 +38,7 @@ interface Props {
 const AccountProfile = ({ user, btnTitle }: Props) => {
   const router = useRouter(); //!позволяет программно изменять маршруты внутри клиентских компонентов.
   const pathname = usePathname(); //! позволяет вам читать текущий путь URL
-  console.log(pathname);
+  // console.log(pathname);
   const { startUpload } = useUploadThing("media"); //!Этот хук предоставляет функцию для начала загрузки, состояние isUploading, и информацию о допустимых файлах (permittedFileInfo), которая дает информацию о том, какие типы файлов, размеры и количество разрешены на ендпоинте.
   const [files, setFiles] = useState<File[]>([]);
 
@@ -55,7 +55,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
   const onSubmit = async (values: z.infer<typeof UserValidation>) => {
     const blob = values.profile_photo;
     const hasImageChanged = isBase64Image(blob); //! эта функция вернет тру если фото было изменено или фолс если нет
-    console.log("hasImageChanged:", hasImageChanged);
+    // console.log("hasImageChanged:", hasImageChanged);
     if (hasImageChanged) {
       const imgRes = await startUpload(files); //! загружаю файл и затем проверяю если пришел ответ и адрес файла
       if (imgRes && imgRes[0].url) {

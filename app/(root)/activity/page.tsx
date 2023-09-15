@@ -10,12 +10,12 @@ async function Page() {
     return null;
   }
   const userInfo = await fetchUser(user.id);
-  console.log("Page ~ userInfo:", userInfo);
+  // console.log("Page ~ userInfo:", userInfo);
 
   if (!userInfo?.onboarded) redirect("/onboarding");
 
   const activity = await getActivity(userInfo._id);
-  console.log("Page ~ activity:", activity);
+  // console.log("Page ~ activity:", activity);
 
   return (
     <section>
