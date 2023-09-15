@@ -87,8 +87,8 @@ export async function fetchUserPosts(userId: string) {
 }
 
 export async function fetchUsers({
-  userId,
-  searchString = "",
+  userId, //! Айдиентификатор текущего пользователя, для которого необходимо исключить его из результатов поиска.
+  searchString = "", //!Строка поиска, которую пользователь ввел для поиска других пользователей. По умолчанию пустая строка.
   pageNumber = 1,
   pageSize = 20,
   sortBy = "desc",

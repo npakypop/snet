@@ -7,6 +7,7 @@ export default async function Home() {
   const result = await fetchPosts(1, 30);
   const user = await currentUser();
   if (!user) return null;
+  //TODO Implement SearchBar for Posts like for users and communities
 
   const userInfo = await fetchUser(user.id);
   return (
