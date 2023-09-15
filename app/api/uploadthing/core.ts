@@ -18,7 +18,7 @@ export const ourFileRouter = {
     .middleware(async (req) => {
       // This code runs on your server before upload
       const user = await getUser();
-      console.log(".middleware ~ user:", user);
+      // console.log(".middleware ~ user:", user);
 
       // If you throw, the user will not be able to upload
       if (!user) throw new Error("Unauthorized");

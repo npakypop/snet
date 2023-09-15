@@ -12,7 +12,7 @@ async function Page({ params }: { params: { id: string } }) {
   if (!user) {
     return null;
   }
-  console.log("params: ", params);
+  // console.log("params: ", params);
   const userInfo = await fetchUser(params.id); //! достаем айди из строки запроса
 
   if (!userInfo?.onboarded) redirect("/onboarding"); //! если onboarded=фолс то тогда перенаправить на /onboarding
