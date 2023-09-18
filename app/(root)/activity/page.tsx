@@ -1,3 +1,4 @@
+import Pagination from "@/components/shared/Pagination";
 import { fetchUser, getActivity } from "@/lib/actions/user.actions";
 import { currentUser } from "@clerk/nextjs"; //! что бы определить кто именно создает сообщение
 import Image from "next/image";

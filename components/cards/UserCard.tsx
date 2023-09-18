@@ -32,7 +32,11 @@ const UserCard = ({ id, name, username, imgUrl, personType }: Props) => {
       </div>
       <Button
         className="user-card_btn"
-        onClick={() => router.push(`/profile/${id}`)} //! перекинет на профиль пользователя
+        onClick={
+          personType === "User"
+            ? () => router.push(`/profile/${id}`)
+            : () => router.push(`/communities/${id}`)
+        } //! перекинет на профиль пользователя либо сообщества
       >
         View
       </Button>

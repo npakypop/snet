@@ -3,11 +3,14 @@ import { currentUser } from "@clerk/nextjs"; //! что бы определит�
 import { redirect } from "next/navigation";
 import UserCard from "@/components/cards/UserCard";
 import SearchBar from "@/components/shared/SearchBar";
+import Pagination from "@/components/shared/Pagination";
 
 async function Page({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | undefined };
+  searchParams: {
+    [key: string]: string | undefined;
+  };
 }) {
   const user = await currentUser();
   if (!user) {
@@ -20,7 +23,7 @@ async function Page({
     userId: user.id,
     searchString: searchParams.q,
     pageNumber: searchParams?.page ? +searchParams.page : 1,
-    pageSize: 20,
+    pageSize: 1,
   });
 
   return (
@@ -45,6 +48,11 @@ async function Page({
           </>
         )}
       </div>
+      <Pagination
+        path="search"
+        pageNumber={searchParams?.page ? +searchParams.page : 1}
+        isNext={results.isNext}
+      />
     </>
   );
 }
