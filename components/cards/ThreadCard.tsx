@@ -1,9 +1,11 @@
 import { formatDateString } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+
 import { Button } from "../ui/button";
-import LikeButton from "../LikeButton";
 import React from "react";
+import LikeButton from "../LikeButton";
+import DeleteButton from "../DeleteButton";
 
 interface Props {
   id: string;
@@ -61,11 +63,17 @@ const ThreadCard: React.FC<Props> = ({
             <div className="thread-card_bar" />
           </div>
           <div className="flex w-full flex-col">
-            <Link href={`/profile/${author.id}`} className="relative h-11 w-11">
-              <h4 className="cursor-pointer text-base-semibold text-light-1">
-                {author.name}
-              </h4>
-            </Link>
+            <div className="flex justify-between">
+              <Link
+                href={`/profile/${author.id}`}
+                className="relative h-11 w-11"
+              >
+                <h4 className="cursor-pointer text-base-semibold text-light-1">
+                  {author.name}
+                </h4>
+              </Link>
+              <DeleteButton id={id} />
+            </div>
             <p className="mt-2 text-small-regular text-light-2">{content}</p>
 
             <div className={`${isComment && "mb-10"} mt-5 flex flex-col gap-3`}>

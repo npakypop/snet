@@ -100,7 +100,7 @@ export async function fetchThreadById(threadId: string) {
         path: "community",
         model: Community,
         select: "_id id name image",
-      }) // Populate the community field with _id and name
+      }) // !Populate the community field with _id and name
       .populate({
         path: "children", //! Сначала загружаем связвніе данные для комментов
         populate: [

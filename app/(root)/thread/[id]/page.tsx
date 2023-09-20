@@ -17,11 +17,14 @@ const Page = async ({ params }: { params: { id: string } }) => {
 
   const thread = await fetchThreadById(params.id);
 
+  if (!thread) {
+    redirect("/");
+  } //! при удалении поста непостредтвенно зайдя в него, перенапряаляется на главную страницу
+
   return (
     <section className="relative">
       <div>
         <ThreadCard
-          key={thread._id}
           id={thread._id}
           currentUserId={user?.id || ""}
           parentId={thread.parentId}
