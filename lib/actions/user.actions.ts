@@ -145,7 +145,7 @@ export async function getActivity(userId: string) {
 
     const userThreads = await Thread.find({ author: userId }); //! поиск всех постов которые создал пользователь
 
-    const childThreadIds = userThreads.reduce((acc, userThread) => {
+    const childThreadIds: string[] = userThreads.reduce((acc, userThread) => {
       // console.log("acc", acc);
       return acc.concat(userThread.children);
     }, []); //! сбор всех айдишников комментариев к постам, т.е. элементы массива children у каждого из постов
@@ -165,5 +165,47 @@ export async function getActivity(userId: string) {
     return replies;
   } catch (error: any) {
     throw new Error(`Failed fetch activity: ${error.message}`);
+  }
+}
+
+export async function addToLiked(
+  threadId: string,
+  currentUserId: string,
+  path: string
+) {
+  // console.log(currentUserId);
+  try {
+    connectToDB();
+
+    const actualUser = await User.findOne({ id: currentUserId }); //! поиск таким методом так как currentUserId приходит из клерка и это значение в БД указано как поле id, если же пользоваться методом findById то тогда метод будет обращаться к полю _id, которое создает сама БД. По сути findById это тоже самое что findOne({ _id: сurrentUserId }), за исключением обработки undefined. Подробнее в документации к  методу findById.
+    actualUser.liked.push(threadId);
+    await actualUser.save();
+    revalidatePath(path);
+    // console.log("addToFav ~ actualUser:", actualUser);
+  } catch (error) {
+    throw new Error(`thread not found`);
+  }
+}
+
+export async function removeFromLiked(
+  threadId: string,
+  currentUserId: string,
+  path: string
+) {
+  try {
+    connectToDB();
+
+    const actualUser = await User.findOne({ id: currentUserId });
+
+    const index = actualUser.liked.indexOf(threadId);
+
+    if (index !== -1) {
+      actualUser.liked.splice(index, 1);
+    }
+    await actualUser.save();
+    revalidatePath(path);
+    // console.log("actualUser:", actualUser);
+  } catch (error) {
+    throw new Error(`thread not found`);
   }
 }
