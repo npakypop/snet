@@ -23,7 +23,7 @@ async function Page({
   const results = await fetchCommunities({
     searchString: searchParams.q,
     pageNumber: searchParams?.page ? +searchParams.page : 1,
-    pageSize: 1,
+    pageSize: 2,
   });
 
   return (

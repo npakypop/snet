@@ -11,7 +11,7 @@ export default async function Home({
 }) {
   const results = await fetchPosts(
     searchParams?.page ? +searchParams.page : 1,
-    2
+    5
   );
   const user = await currentUser();
   if (!user) return null;
