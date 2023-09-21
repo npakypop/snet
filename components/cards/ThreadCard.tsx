@@ -72,7 +72,7 @@ const ThreadCard: React.FC<Props> = ({
                   {author.name}
                 </h4>
               </Link>
-              <DeleteButton id={id} />
+              {currentUserId === author.id && <DeleteButton id={id} />}
             </div>
             <p className="mt-2 text-small-regular text-light-2">{content}</p>
 
@@ -80,7 +80,6 @@ const ThreadCard: React.FC<Props> = ({
               <div className="flex gap-3.5">
                 <LikeButton
                   liked={liked}
-                  name={author.name}
                   id={id}
                   currentUserId={currentUserId}
                 />

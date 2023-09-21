@@ -127,37 +127,37 @@ export async function fetchThreadById(threadId: string) {
   }
 }
 
-export async function addToLiked(threadId: string, currentUserId: string) {
-  // console.log(currentUserId);
-  try {
-    connectToDB();
+// export async function addToLiked(threadId: string, currentUserId: string) {
+//   // console.log(currentUserId);
+//   try {
+//     connectToDB();
 
-    const actualUser = await User.findOne({ id: currentUserId }); //! поиск таким методом так как currentUserId приходит из клерка и это значение в БД указано как поле id, если же пользоваться методом findById то тогда метод будет обращаться к полю _id, которое создает сама БД. По сути findById это тоже самое что findOne({ _id: сurrentUserId }), за исключением обработки undefined. Подробнее в документации к  методу findById.
-    actualUser.liked.push(threadId);
-    await actualUser.save();
-    // console.log("addToFav ~ actualUser:", actualUser);
-  } catch (error) {
-    throw new Error(`thread not found`);
-  }
-}
+//     const actualUser = await User.findOne({ id: currentUserId }); //! поиск таким методом так как currentUserId приходит из клерка и это значение в БД указано как поле id, если же пользоваться методом findById то тогда метод будет обращаться к полю _id, которое создает сама БД. По сути findById это тоже самое что findOne({ _id: сurrentUserId }), за исключением обработки undefined. Подробнее в документации к  методу findById.
+//     actualUser.liked.push(threadId);
+//     await actualUser.save();
+//     // console.log("addToFav ~ actualUser:", actualUser);
+//   } catch (error) {
+//     throw new Error(`thread not found`);
+//   }
+// }
 
-export async function removeFromLiked(threadId: string, currentUserId: string) {
-  try {
-    connectToDB();
+// export async function removeFromLiked(threadId: string, currentUserId: string) {
+//   try {
+//     connectToDB();
 
-    const actualUser = await User.findOne({ id: currentUserId });
+//     const actualUser = await User.findOne({ id: currentUserId });
 
-    const index = actualUser.liked.indexOf(threadId);
+//     const index = actualUser.liked.indexOf(threadId);
 
-    if (index !== -1) {
-      actualUser.liked.splice(index, 1);
-    }
-    await actualUser.save();
-    // console.log("actualUser:", actualUser);
-  } catch (error) {
-    throw new Error(`thread not found`);
-  }
-}
+//     if (index !== -1) {
+//       actualUser.liked.splice(index, 1);
+//     }
+//     await actualUser.save();
+//     // console.log("actualUser:", actualUser);
+//   } catch (error) {
+//     throw new Error(`thread not found`);
+//   }
+// }
 
 export async function addCommentToThread(
   threadId: string,
@@ -206,24 +206,23 @@ async function fetchAllChildThreads(threadId: string): Promise<any[]> {
 }
 
 export async function deleteThread(id: string, path: string): Promise<void> {
+  //* При удалении поста удалять у пользователей айди поста который он лайкнул
+
   try {
     connectToDB();
 
-    // Find the thread to be deleted (the main thread)
-    const mainThread = await Thread.findById(id).populate("author community");
+    const mainThread = await Thread.findById(id).populate("author community"); //! Функция ищет основную ветку (main thread) которую надо удвлить по её id. Основная ветка загружается с подробными данными, включая информацию об авторе (author) и сообществе (community)
 
     if (!mainThread) {
       throw new Error("Thread not found");
-    }
+    } //!Если основная ветка не найдена, выбрасывается сообщение.
 
-    // Fetch all child threads and their descendants recursively
-    const descendantThreads = await fetchAllChildThreads(id);
+    const descendantThreads = await fetchAllChildThreads(id); //!чтобы найти все дочерние ветки и их потомков
 
-    // Get all descendant thread IDs including the main thread ID and child thread IDs
     const descendantThreadIds = [
       id,
       ...descendantThreads.map((thread) => thread._id),
-    ];
+    ]; //!содержит ID всех потомков включая основную ветку.
 
     // Extract the authorIds and communityIds to update User and Community models respectively
     const uniqueAuthorIds = new Set(
