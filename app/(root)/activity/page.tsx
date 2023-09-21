@@ -4,6 +4,7 @@ import { currentUser } from "@clerk/nextjs"; //! что бы определит�
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { useEffect, useState } from "react";
 
 async function Page() {
   const user = await currentUser();
@@ -11,20 +12,23 @@ async function Page() {
     return null;
   }
   const userInfo = await fetchUser(user.id);
-  // console.log("Page ~ userInfo:", userInfo);
 
   if (!userInfo?.onboarded) redirect("/onboarding");
 
-  const activity = await getActivity(userInfo._id);
-  // console.log("Page ~ activity:", activity);
+  // const [replies, likesReplies] = await getActivity(userInfo._id);
+  // console.log("Page ~ likesReplies:", likesReplies);
+  // console.log("Page ~ replies:", replies);
+  const replies = await getActivity(userInfo._id);
+  console.log("replies:", replies);
 
   return (
     <section>
       <h1 className="head-text mb-10">Activity</h1>
       <section className="mt-10 flex flex-col gap-5">
-        {activity.length > 0 ? (
+        hello
+        {replies.length > 0 ? (
           <>
-            {activity.map((act) => (
+            {replies.map((act) => (
               <Link key={act._id} href={`/thread/${act.parentId}`}>
                 <article className="activity-card">
                   <Image

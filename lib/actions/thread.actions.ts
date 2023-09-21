@@ -127,37 +127,49 @@ export async function fetchThreadById(threadId: string) {
   }
 }
 
-// export async function addToLiked(threadId: string, currentUserId: string) {
-//   // console.log(currentUserId);
-//   try {
-//     connectToDB();
+export async function addUserIdToThreadLikes(
+  threadId: string,
+  currentUserId: string
+) {
+  try {
+    connectToDB();
 
-//     const actualUser = await User.findOne({ id: currentUserId }); //! поиск таким методом так как currentUserId приходит из клерка и это значение в БД указано как поле id, если же пользоваться методом findById то тогда метод будет обращаться к полю _id, которое создает сама БД. По сути findById это тоже самое что findOne({ _id: сurrentUserId }), за исключением обработки undefined. Подробнее в документации к  методу findById.
-//     actualUser.liked.push(threadId);
-//     await actualUser.save();
-//     // console.log("addToFav ~ actualUser:", actualUser);
-//   } catch (error) {
-//     throw new Error(`thread not found`);
-//   }
-// }
+    const actualUser = await User.findOne({ id: currentUserId }); //! поиск таким методом так как currentUserId приходит из клерка и это значение в БД указано как поле id, если же пользоваться методом findById то тогда метод будет обращаться к полю _id, которое создает сама БД. По сути findById это тоже самое что findOne({ _id: сurrentUserId }), за исключением обработки undefined. Подробнее в документации к  методу findById.
+    const actualThread = await Thread.findById(threadId);
+    if (!actualThread) {
+      throw new Error("Пост не найден"); //! Обработка случая, если пост не найден
+    }
 
-// export async function removeFromLiked(threadId: string, currentUserId: string) {
-//   try {
-//     connectToDB();
+    actualThread.likes.push(actualUser._id); //! обращаюсь к полю actualUser._id так как в модели указан тип для этого значения mongoose.Schema.Types.ObjectId, Сюда нельзя записать строку здесь должен быть значения типа объект
 
-//     const actualUser = await User.findOne({ id: currentUserId });
+    await actualThread.save();
+  } catch (error) {
+    throw new Error(`thread not found`);
+  }
+}
 
-//     const index = actualUser.liked.indexOf(threadId);
+export async function removeUserIdFromThreadLikes(
+  threadId: string,
+  currentUserId: string
+) {
+  try {
+    connectToDB();
 
-//     if (index !== -1) {
-//       actualUser.liked.splice(index, 1);
-//     }
-//     await actualUser.save();
-//     // console.log("actualUser:", actualUser);
-//   } catch (error) {
-//     throw new Error(`thread not found`);
-//   }
-// }
+    const actualUser = await User.findOne({ id: currentUserId });
+
+    const actualThread = await Thread.findById(threadId);
+
+    const indexThread = actualThread.likes.indexOf(actualUser._id);
+
+    if (indexThread !== -1) {
+      actualThread.likes.splice(indexThread, 1);
+    }
+
+    await actualThread.save();
+  } catch (error) {
+    throw new Error(`thread not found`);
+  }
+}
 
 export async function addCommentToThread(
   threadId: string,

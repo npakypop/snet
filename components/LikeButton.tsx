@@ -5,6 +5,11 @@ import Image from "next/image";
 import Heart from "public/assets/heart-gray.svg";
 import HeartRed from "public/assets/heart-filled.svg";
 import { addToLiked, removeFromLiked } from "@/lib/actions/user.actions";
+import {
+  addUserIdToThreadLikes,
+  removeUserIdFromThreadLikes,
+} from "@/lib/actions/thread.actions";
+import { revalidatePath } from "next/cache";
 
 interface Props {
   id: string;
@@ -14,11 +19,18 @@ interface Props {
 
 const LikeButton: React.FC<Props> = ({ id, currentUserId, liked }) => {
   const pathname = usePathname();
+
   const handleLike = () => {
-    // console.log(`liked ${liked} ${id}`);
-    liked
-      ? removeFromLiked(id, currentUserId, pathname)
-      : addToLiked(id, currentUserId, pathname);
+    if (liked) {
+      removeFromLiked(id, currentUserId, pathname);
+      removeUserIdFromThreadLikes(id, currentUserId);
+    } else {
+      addToLiked(id, currentUserId, pathname);
+      addUserIdToThreadLikes(id, currentUserId);
+    }
+    // liked
+    //   ? removeFromLiked(id, currentUserId, pathname)
+    //   : addToLiked(id, currentUserId, pathname);
   };
 
   return (

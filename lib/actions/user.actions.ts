@@ -145,12 +145,21 @@ export async function getActivity(userId: string) {
     const userThreads = await Thread.find({ author: userId }); //! поиск всех постов которые создал пользователь
 
     const childThreadIds: string[] = userThreads.reduce((acc, userThread) => {
-      // console.log("acc", acc);
       return acc.concat(userThread.children);
     }, []); //! сбор всех айдишников комментариев к постам, т.е. элементы массива children у каждого из постов
 
-    //! получение доступа ко всем комментариям кроме тех которые оставил сам пользователь
+    // const likedByIds: string[] = userThreads.reduce((acc, userThread) => {
+    //   return acc.concat(userThread.likes);
+    // }, []); //! сбор всех айдишников пользователей которые лайкнули посты
 
+    // const likedThreads: string[] = userThreads.reduce((acc, userThread) => {
+    //   if (userThread.likes.length > 0) {
+    //     acc = acc.concat(userThread._id);
+    //   }
+    //   return acc;
+    // }, []); //! сбор всех айди постов которые были лайкнуты
+
+    //! получение доступа ко всем комментариям кроме тех которые оставил сам пользователь
     const replies = Thread.find({
       _id: { $in: childThreadIds }, //! поиск документов, у которых _id соответствуют значениям из массива childThreadIds.
       author: { $ne: userId },
@@ -159,9 +168,20 @@ export async function getActivity(userId: string) {
       model: User,
       select: "name image _id",
     });
-    // console.log("getActivity ~ replies:", replies);
 
     return replies;
+    //*ОБЯЗАТЕЛЬНО РАЗОБРАТЬСЯ КАК РЕАЛИЗОВАТЬ ЧТО БЫ ПОКАЗЫВАЛИСЬ НЕ ТОЛЬКО УВЕДОМЛЕНИЯ О ПРОКОММЕНТИРОВАНЫХ НО И И КТО ЛАЙКНУЛ
+    // const likesRepliesQuery = Thread.find({
+    //   _id: { $in: likedThreads }, //! поиск документов, у которых _id соответствуют значениям из массива likedThreads.
+    //   author: { $ne: userId },
+    // }).populate({
+    //   path: "author",
+    //   model: User,
+    //   select: "name image _id",
+    // });
+
+    // const likesReplies = await likesRepliesQuery.exec();
+    // return likesReplies;
   } catch (error: any) {
     throw new Error(`Failed fetch activity: ${error.message}`);
   }
@@ -172,25 +192,21 @@ export async function addToLiked(
   currentUserId: string,
   path: string
 ) {
-  // console.log(currentUserId);
   try {
     connectToDB();
 
     const actualUser = await User.findOne({ id: currentUserId }); //! поиск таким методом так как currentUserId приходит из клерка и это значение в БД указано как поле id, если же пользоваться методом findById то тогда метод будет обращаться к полю _id, которое создает сама БД. По сути findById это тоже самое что findOne({ _id: сurrentUserId }), за исключением обработки undefined. Подробнее в документации к  методу findById.
-    const actualThread = await Thread.findById(threadId);
-    console.log("currentUserId:", currentUserId);
-    if (!actualThread) {
-      throw new Error("Пост не найден"); //! Обработка случая, если пост не найден
-    }
-    // if (actualThread.likes.includes(currentUserId)) {
-    //   throw new Error("Пользователь уже лайкнул этот пост"); //! Обработка случая, если пользователь уже лайкнул пост
+    // const actualThread = await Thread.findById(threadId);
+    // if (!actualThread) {
+    //   throw new Error("Пост не найден"); //! Обработка случая, если пост не найден
     // }
+
     actualUser.liked.push(threadId);
 
-    actualThread.likes.push(actualUser._id); //! обращаюсь к полю actualUser._id так как в модели указан тип для этого значения mongoose.Schema.Types.ObjectId, Сюда нельзя записать строку здесь должен быть значения типа объект
+    // actualThread.likes.push(actualUser._id); //! обращаюсь к полю actualUser._id так как в модели указан тип для этого значения mongoose.Schema.Types.ObjectId, Сюда нельзя записать строку здесь должен быть значения типа объект
 
     await actualUser.save();
-    await actualThread.save();
+    // await actualThread.save();
 
     revalidatePath(path);
   } catch (error: any) {
@@ -207,15 +223,22 @@ export async function removeFromLiked(
     connectToDB();
 
     const actualUser = await User.findOne({ id: currentUserId });
+    const indexUser = actualUser.liked.indexOf(threadId);
 
-    const index = actualUser.liked.indexOf(threadId);
+    // const actualThread = await Thread.findById(threadId);
 
-    if (index !== -1) {
-      actualUser.liked.splice(index, 1);
+    // const indexThread = actualThread.likes.indexOf(actualUser._id);
+
+    if (indexUser !== -1) {
+      actualUser.liked.splice(indexUser, 1);
     }
+    // if (indexThread !== -1) {
+    //   actualThread.likes.splice(indexThread, 1);
+    // }
     await actualUser.save();
+    // await actualThread.save();
+
     revalidatePath(path);
-    // console.log("actualUser:", actualUser);
   } catch (error) {
     throw new Error(`thread not found`);
   }
