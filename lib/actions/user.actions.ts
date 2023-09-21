@@ -5,7 +5,6 @@ import { connectToDB } from "../mongoose";
 import Thread from "../models/thread.model";
 import { FilterQuery, SortOrder } from "mongoose";
 import Community from "../models/community.model";
-
 interface IUserParams {
   userId: string;
   username: string;
@@ -178,12 +177,24 @@ export async function addToLiked(
     connectToDB();
 
     const actualUser = await User.findOne({ id: currentUserId }); //! поиск таким методом так как currentUserId приходит из клерка и это значение в БД указано как поле id, если же пользоваться методом findById то тогда метод будет обращаться к полю _id, которое создает сама БД. По сути findById это тоже самое что findOne({ _id: сurrentUserId }), за исключением обработки undefined. Подробнее в документации к  методу findById.
+    const actualThread = await Thread.findById(threadId);
+    console.log("currentUserId:", currentUserId);
+    if (!actualThread) {
+      throw new Error("Пост не найден"); //! Обработка случая, если пост не найден
+    }
+    // if (actualThread.likes.includes(currentUserId)) {
+    //   throw new Error("Пользователь уже лайкнул этот пост"); //! Обработка случая, если пользователь уже лайкнул пост
+    // }
     actualUser.liked.push(threadId);
+
+    actualThread.likes.push(actualUser._id); //! обращаюсь к полю actualUser._id так как в модели указан тип для этого значения mongoose.Schema.Types.ObjectId, Сюда нельзя записать строку здесь должен быть значения типа объект
+
     await actualUser.save();
+    await actualThread.save();
+
     revalidatePath(path);
-    // console.log("addToFav ~ actualUser:", actualUser);
-  } catch (error) {
-    throw new Error(`thread not found`);
+  } catch (error: any) {
+    throw new Error(`error while like: ${error.message}`);
   }
 }
 
